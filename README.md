@@ -1,6 +1,6 @@
 ## react-hooks-intro
 
-```
+```bash
 # Install
 yarn
 
