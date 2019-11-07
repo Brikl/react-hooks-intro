@@ -1,0 +1,22 @@
+{
+  "name": "react-hooks-intro",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "mdx-deck deck.mdx"
+  },
+  "author": "Lucas Munhoz <ln.munhoz@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@mdx-deck/themes": "^3.0.8",
+    "mdx-deck": "^3.0.13"
+  },
+  "dependencies": {
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0",
+    "styled-components": "^4.4.1"
+  },
+  "resolutions": {
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0"
+  }
+}

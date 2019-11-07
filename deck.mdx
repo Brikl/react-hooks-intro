@@ -1,0 +1,520 @@
+import theme from "./theme";
+import { prism } from "@mdx-deck/themes";
+import LightBulb from "./components/LightBulb";
+import SmartLight from "./components/SmartLight";
+import SmartLightWithNotification from "./components/SmartLightWithNotification";
+import SmartLightWithOnMount from "./components/SmartLightWithOnMount";
+import SmartLightCustomHook from "./components/SmartLightCustomHook";
+
+export const themes = [prism, theme];
+
+# React Hooks Intro
+
+## @ BrikL
+
+#### By Lucas Munhoz
+
+---
+
+## Topics
+
+1. Introduction
+2. Hooks at BrikL
+3. Practical Examples
+4. Custom hooks
+5. Hooks Rules
+6. Next hooks to learn?
+
+---
+
+## Introduction
+
+<center>
+  Hooks are a new addition in React 16.8. They let you use state and other React
+  features without writing a class.
+</center>
+
+<br />
+
+<center>They've been part of stable React releases since Feb 6th, 2019</center>
+
+> https://reactjs.org/docs/hooks-intro.html
+
+---
+
+## What is a Hook?
+
+<center>
+  Hooks are functions that let you “hook into” React state and lifecycle
+  features from function components.
+</center>
+
+> Hooks don’t work inside classes — they let you use React without classes.
+
+---
+
+### Hooks at BrikL source code
+
+- useState ~ 40 files
+- useEffect ~ 14 files
+
+---
+
+### Sometimes we use...
+
+- useCallback
+- useRef
+- useImperativeHandle
+
+---
+
+### We never used!
+
+- useContext
+- useMemo
+- useLayoutEffect
+- useDebugValue
+
+---
+
+### Hooks in Practice
+
+---
+
+`useState`
+
+<p>Returns a stateful value, and a function to update it.</p>
+
+---
+
+<SmartLight />
+
+```jsx
+const [isOn, setIsOn] = useState(false);
+```
+
+Two possible ways to modify the state
+
+```jsx
+setIsOn(false);
+```
+
+```jsx
+setIsOn(isOn => !isOn);
+```
+
+---
+
+<SmartLight />
+
+<div style={{display: 'flex', marginTop: 250}}>
+
+  <div style={{marginRight: 10}}>
+
+```jsx
+function SmartLight(props) {
+  const [isOn, setIsOn] = useState(false);
+
+  return (
+    <LightBulb
+      isOn={isOn}
+      onClick={() => {
+        setIsOn(!isOn);
+      }}
+    />
+  );
+}
+```
+
+</div>
+
+```jsx
+function SmartLight(props) {
+  const [isOn, setIsOn] = useState(false);
+
+  return (
+    <LightBulb
+      isOn={isOn}
+      onClick={() => {
+        setIsOn(value => !value);
+      }}
+    />
+  );
+}
+```
+
+</div>
+
+> Same result
+
+---
+
+State as an object
+
+```jsx
+const [houseLights, setHouseLights] = useState({
+  livingRoom: [false, true, true, false],
+  kitchen: [false, false]
+});
+```
+
+<p> Update kitchen lights </p>
+
+```jsx
+setHouseLights(prevState => {
+  return {
+    ...prevState,
+    {
+      kitchen: [true, true]
+    }
+  }
+});
+```
+
+---
+
+`useEffect`
+
+Lets you perform side effects in function components
+
+---
+
+<p>Similar to</p>
+<p style={{marginTop: -50}}>componentDidMount and componentDidUpdate</p>
+
+```jsx
+useEffect(() => {
+  // Run when component mount and state changes
+});
+```
+
+---
+
+<p>Watching variables (dependency array)</p>
+
+```jsx
+useEffect(() => {
+  // Run when state changes
+}, [props.isOn]);
+```
+
+---
+
+<p>Run only once</p>
+
+```jsx
+useEffect(() => {
+  // Runs when component mounts
+}, []);
+```
+
+---
+
+<p>Run returned function on unmount</p>
+
+```jsx
+useEffect(() => {
+  subscribeToNotifications();
+
+  return () => unsubsribe();
+}, []);
+```
+
+---
+
+<SmartLightWithNotification />
+
+<div style={{marginTop: 200}}>
+
+```jsx
+function SmartLightWithNotification(props) {
+  const [isOn, setIsOn] = useState(false);
+
+  useEffect(() => {
+    alert(`Lights ${isOn ? "on" : "off"}!`);
+  }, [isOn]);
+
+  return (
+    <LightBulb
+      isOn={isOn}
+      onClick={() => {
+        setIsOn(value => !value);
+      }}
+    />
+  );
+}
+```
+
+</div>
+
+---
+
+<SmartLightWithOnMount />
+
+<div style={{marginTop: 150}}>
+
+```jsx
+function SmartLightWithNotification(props) {
+  const [isOn, setIsOn] = useState(false);
+  const [didMount, setDidMount] = useState(false);
+
+  useEffect(() => {
+    setDidMount(true);
+  }, []);
+
+  useEffect(() => {
+    if (didMount) {
+      alert(`Lights ${isOn ? "on" : "off"}!`);
+    }
+  }, [isOn]);
+
+  return (
+    <LightBulb
+      isOn={isOn}
+      onClick={() => {
+        setIsOn(value => !value);
+      }}
+    />
+  );
+}
+```
+
+</div>
+
+---
+
+By the way, this could be a custom hook!
+
+---
+
+`useDidUpdate`
+
+```jsx
+function useDidUpdate(fn, deps) {
+  const [didMount, setDidMount] = useState(false);
+
+  useEffect(() => {
+    setDidMount(true);
+  }, []);
+
+  useEffect(() => {
+    if (didMount) {
+      fn();
+    }
+  }, deps);
+
+  return didMount;
+}
+```
+
+---
+
+<SmartLightCustomHook />
+
+```jsx
+function SmartLightCustomHook() {
+  const [isOn, setIsOn] = useState(false);
+
+  useDidUpdate(() => {
+    alert(`Light is ${isOn ? "on" : "off"}`);
+  }, [isOn]);
+
+  return (
+    <LightBulb
+      isOn={isOn}
+      onClick={() => {
+        setIsOn(value => !value);
+      }}
+    />
+  );
+}
+```
+
+---
+
+Another example of custom hook
+
+`useLightSwitch`
+
+---
+
+`useLightSwitch`
+
+```jsx
+function useLightSwitch(initialState) {
+  const [isOn, setIsOn] = useState(false);
+  const toggleSwitch = () => setIsOn(!isOn);
+
+  return { isOn, toggleSwitch };
+}
+```
+
+---
+
+<SmartLightCustomHook />
+
+```jsx
+function SmartLightCustomHook() {
+  const { isOn, toggleSwitch } = useLightSwitch(false);
+
+  useDidUpdate(() => {
+    alert(`Light is ${isOn ? "on" : "off"}`);
+  }, [isOn]);
+
+  return <LightBulb isOn={isOn} onClick={toggleSwitch} />;
+}
+```
+
+---
+
+## Rules of Hooks?
+
+<center>
+  Hooks are JavaScript functions, but they impose two additional rules.
+</center>
+
+> https://reactjs.org/docs/hooks-rules.html#explanation
+
+---
+
+## Rule #1
+
+<center>
+  Only call Hooks at the top level. Don’t call Hooks inside loops, conditions,
+  or nested functions.
+</center>
+
+---
+
+## DONT ❌
+
+```jsx
+function SmartLight(props) {
+  const [isOn, setIsOn] = useState(true);
+
+  // ❌ Will cause error
+  if (props.speech === "good night") {
+    useEffect(() => {
+      setIsOn(false);
+    });
+  }
+
+  return <LightBulb isOn={isOn} />;
+}
+```
+
+---
+
+❌
+
+```
+Failed to compile
+/BrikL/react-hooks/components/SmartLight.js
+Module Error (from ../eslint-loader/index.js):
+
+BrikL/react-hooks/components/SmartLight.js
+  9:5  error  React Hook "useEffect" is called conditionally.
+
+  React Hooks must be called in the exact
+  same order in every component render  react-hooks/rules-of-hooks
+
+✖ 1 problem (1 error, 0 warnings)
+```
+
+---
+
+## Call hooks at top level ✅
+
+```jsx
+function SmartLight(props) {
+  const [isOn, setIsOn] = useState(true);
+
+  //  ✅ Works
+  useEffect(() => {
+    if (props.speech === "good night") {
+      setIsOn(false);
+    }
+  }, [props.speech]);
+
+  return <LightBulb isOn={isOn} />;
+}
+```
+
+---
+
+## Rule #2
+
+<center>Only call Hooks from function components or inside other hooks.</center>
+
+---
+
+## DONT ❌
+
+```jsx
+class SmartLight extends React.Component {
+  render() {
+    const [isOn, setIsOn] = useState(false);
+
+    return <LightBulb isOn={isOn} />;
+  }
+}
+```
+
+---
+
+## ❌
+
+```
+Invariant Violation
+Invalid hook call. Hooks can only be called inside of the body of a function component.
+This could happen for one of the following reasons:
+
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+
+See https://fb.me/react-invalid-hook-call for tips about how to debug and fix this problem.
+```
+
+---
+
+### Class Component has its own state ✅
+
+```jsx
+class SmartLight extends React.Component {
+  state = { isOn: false };
+
+  render() {
+    return <LightBulb isOn={this.state.isOn} />;
+  }
+}
+```
+
+---
+
+For next week
+
+---
+
+<center>
+  Pick one of the hooks listed on the slides, make a code sample and explain how
+  it works.
+</center>
+
+<center> ++ Bonus if you create a custom hook</center>
+
+---
+
+- useCallback
+- useRef
+- useImperativeHandle
+- useContext
+- useMemo
+- useLayoutEffect
+- useDebugValue
+
+---
+
+# Questions?
+
+## Thank you!
